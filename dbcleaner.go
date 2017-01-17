@@ -31,17 +31,7 @@ func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
 		return err
 	}
 
-	excludedTablesMap := map[string]bool{}
-
-	for _, t := range excludedTables {
-		excludedTablesMap[t] = true
-	}
-
-	filterFunc := func(value string) bool {
-		return !excludedTablesMap[value]
-	}
-
-	tables = utils.FilterStringArray(tables, filterFunc)
+	tables = utils.SubtractStringArray(tables, excludedTables)
 
 	for _, table := range tables {
 		if _, err = c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)); err != nil {
