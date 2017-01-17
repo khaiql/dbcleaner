@@ -28,3 +28,12 @@ func TestNewCleaner(t *testing.T) {
 		}
 	})
 }
+
+func TestClose(t *testing.T) {
+	cleaner, _ := dbcleaner.New("postgres", connectionString())
+	err := cleaner.Close()
+
+	if err != nil {
+		t.Fatalf("Should be able to close connection to database. Err: %s", err.Error())
+	}
+}

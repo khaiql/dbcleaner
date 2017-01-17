@@ -16,3 +16,7 @@ func New(driver, connectionString string) (*dbcleaner, error) {
 
 	return &dbcleaner{}, err
 }
+
+func (c *dbcleaner) Close() error {
+	return db.Close()
+}
