@@ -3,6 +3,7 @@ package dbcleaner
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	"dbcleaner/utils"
 )
@@ -26,6 +27,8 @@ func (c *dbcleaner) Close() error {
 }
 
 func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
+	var waitGroup sync.WaitGroup
+
 	tables, err := c.getTables()
 	if err != nil {
 		return err
@@ -33,11 +36,16 @@ func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
 
 	tables = utils.SubtractStringArray(tables, excludedTables)
 
+	waitGroup.Add(len(tables))
+
 	for _, table := range tables {
-		if _, err = c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)); err != nil {
-			return err
-		}
+		go func(table string) {
+			c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table))
+			waitGroup.Done()
+		}(table)
 	}
+
+	waitGroup.Wait()
 
 	return nil
 }
