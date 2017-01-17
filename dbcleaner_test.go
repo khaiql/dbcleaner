@@ -77,6 +77,7 @@ func TestTruncateTables(t *testing.T) {
 
 	cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
 	_ = cleaner.TruncateTables()
+	defer cleaner.Close()
 
 	db := getDbConnection(connWithDatabaseName)
 	defer db.Close()
