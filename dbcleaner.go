@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"dbcleaner/utils"
+	"github.com/khaiql/dbcleaner/utils"
 )
 
 type dbcleaner struct {

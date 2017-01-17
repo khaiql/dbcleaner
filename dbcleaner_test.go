@@ -2,9 +2,9 @@ package dbcleaner_test
 
 import (
 	"database/sql"
-	"dbcleaner"
 	"testing"
 
+	"github.com/khaiql/dbcleaner"
 	_ "github.com/lib/pq"
 )
 
