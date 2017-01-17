@@ -5,33 +5,32 @@ import (
 	"fmt"
 )
 
-var db *sql.DB
-
-type dbcleaner struct{}
+type dbcleaner struct {
+	db *sql.DB
+}
 
 func New(driver, connectionString string) (*dbcleaner, error) {
-	var err error
-	db, err = sql.Open(driver, connectionString)
+	db, err := sql.Open(driver, connectionString)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbcleaner{}, err
+	return &dbcleaner{db}, err
 }
 
 func (c *dbcleaner) Close() error {
-	return db.Close()
+	return c.db.Close()
 }
 
 func (c *dbcleaner) TruncateTables() error {
-	tables, err := getTables()
+	tables, err := c.getTables()
 	if err != nil {
 		return err
 	}
 
 	for _, table := range tables {
-		if _, err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)); err != nil {
+		if _, err = c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)); err != nil {
 			return err
 		}
 	}
@@ -39,10 +38,10 @@ func (c *dbcleaner) TruncateTables() error {
 	return nil
 }
 
-func getTables() ([]string, error) {
+func (c *dbcleaner) getTables() ([]string, error) {
 	tables := make([]string, 0)
 
-	rows, err := db.Query("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';")
+	rows, err := c.db.Query("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';")
 	if err != nil {
 		return tables, err
 	}
