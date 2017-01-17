@@ -20,3 +20,7 @@ func New(driver, connectionString string) (*dbcleaner, error) {
 func (c *dbcleaner) Close() error {
 	return db.Close()
 }
+
+func (c *dbcleaner) TruncateAll() error {
+	return nil
+}

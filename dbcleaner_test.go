@@ -70,3 +70,42 @@ func TestClose(t *testing.T) {
 		}
 	})
 }
+
+func TestTruncateTables(t *testing.T) {
+	setup()
+	defer dropDatabase()
+
+	cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
+	_ = cleaner.TruncateTables()
+
+	db := getDbConnection(connWithDatabaseName)
+	defer db.Close()
+
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		t.Fatalf("Shouldn't have error but got: %s", err.Error())
+	}
+
+	if count != 0 {
+		t.Errorf("Should get 0, but got: %d", count)
+	}
+}
+
+func setup() {
+	createDatabase()
+	db := getDbConnection(connWithDatabaseName)
+	defer db.Close()
+
+	commands := []string{
+		"CREATE TABLE users(id serial primary key, name varchar)",
+		"INSERT INTO users(name) values ('UserA')",
+	}
+
+	for _, cmd := range commands {
+		_, err := db.Exec(cmd)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
