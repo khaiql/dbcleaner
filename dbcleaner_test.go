@@ -76,21 +76,40 @@ func TestTruncateTables(t *testing.T) {
 	defer dropDatabase()
 
 	cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
-	_ = cleaner.TruncateTables()
 	defer cleaner.Close()
 
 	db := getDbConnection(connWithDatabaseName)
 	defer db.Close()
 
-	var count int
-	err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
-	if err != nil {
-		t.Fatalf("Shouldn't have error but got: %s", err.Error())
-	}
+	t.Run("WithoutExcludedTables", func(t *testing.T) {
+		if err := cleaner.TruncateTables(); err != nil {
+			t.Fatalf("Shouldn't have error but got %s", err.Error())
+		}
 
-	if count != 0 {
-		t.Errorf("Should get 0, but got: %d", count)
-	}
+		var count int
+		err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+		if err != nil {
+			t.Fatalf("Shouldn't have error but got: %s", err.Error())
+		}
+
+		if count != 0 {
+			t.Errorf("Should get 0, but got: %d", count)
+		}
+	})
+
+	t.Run("WithExludedTables", func(t *testing.T) {
+		db.Exec("INSERT INTO users(name) values('username')")
+
+		if err := cleaner.TruncateTables("users"); err != nil {
+			t.Fatalf("Shouldn't have error but got %s", err.Error())
+		}
+
+		var count int
+		db.QueryRow("SELECT COUNT(*) FROM users;").Scan(&count)
+		if count != 1 {
+			t.Errorf("Should get 1 but got %d", count)
+		}
+	})
 }
 
 func setup() {

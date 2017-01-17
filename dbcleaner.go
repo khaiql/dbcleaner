@@ -3,6 +3,8 @@ package dbcleaner
 import (
 	"database/sql"
 	"fmt"
+
+	"dbcleaner/utils"
 )
 
 type dbcleaner struct {
@@ -23,11 +25,23 @@ func (c *dbcleaner) Close() error {
 	return c.db.Close()
 }
 
-func (c *dbcleaner) TruncateTables() error {
+func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
 	tables, err := c.getTables()
 	if err != nil {
 		return err
 	}
+
+	excludedTablesMap := map[string]bool{}
+
+	for _, t := range excludedTables {
+		excludedTablesMap[t] = true
+	}
+
+	filterFunc := func(value string) bool {
+		return !excludedTablesMap[value]
+	}
+
+	tables = utils.FilterStringArray(tables, filterFunc)
 
 	for _, table := range tables {
 		if _, err = c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table)); err != nil {
