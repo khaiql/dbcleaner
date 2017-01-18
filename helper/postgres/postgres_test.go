@@ -1,9 +1,13 @@
-package postgres
+package postgres_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/khaiql/dbcleaner/helper/postgres"
+)
 
 func TestGetTableQuery(t *testing.T) {
-	helper := PostgresHelper{}
+	helper := postgres.Helper{}
 	query := helper.GetTablesQuery()
 
 	if query != "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';" {
@@ -12,7 +16,7 @@ func TestGetTableQuery(t *testing.T) {
 }
 
 func TestTruncateTableCommand(t *testing.T) {
-	helper := PostgresHelper{}
+	helper := postgres.Helper{}
 	cmd := helper.TruncateTableCommand("users")
 
 	if cmd != "TRUNCATE TABLE users" {
