@@ -1,6 +1,6 @@
-package instructor
+package helper
 
-type Instructor interface {
+type Helper interface {
 	GetTablesQuery() string
 	TruncateTableCommand(tableName string) string
 }
