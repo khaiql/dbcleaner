@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/khaiql/dbcleaner"
+	"github.com/khaiql/dbcleaner/helper/postgres"
 	_ "github.com/lib/pq"
 )
 
@@ -75,6 +76,7 @@ func TestTruncateTables(t *testing.T) {
 	setup()
 	defer dropDatabase()
 
+	dbcleaner.RegisterHelper("postgres", postgres.PostgresHelper{})
 	cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
 	defer cleaner.Close()
 
@@ -158,7 +160,7 @@ func TestRegisterAndFindHelper(t *testing.T) {
 	})
 
 	t.Run("NotRegisteredHelper", func(t *testing.T) {
-		_, err := dbcleaner.FindHelper("postgres")
+		_, err := dbcleaner.FindHelper("whoami")
 		if err == nil {
 			t.Error("It should return an error")
 		}

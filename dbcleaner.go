@@ -11,7 +11,8 @@ import (
 )
 
 type dbcleaner struct {
-	db *sql.DB
+	db     *sql.DB
+	driver string
 }
 
 var (
@@ -33,7 +34,7 @@ func New(driver, connectionString string) (*dbcleaner, error) {
 		return nil, err
 	}
 
-	return &dbcleaner{db}, err
+	return &dbcleaner{db, driver}, err
 }
 
 func FindHelper(driver string) (helper.Helper, error) {
@@ -74,8 +75,12 @@ func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
 
 func (c *dbcleaner) getTables() ([]string, error) {
 	tables := make([]string, 0)
+	helper, err := FindHelper(c.driver)
+	if err != nil {
+		return tables, err
+	}
 
-	rows, err := c.db.Query("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';")
+	rows, err := c.db.Query(helper.GetTablesQuery())
 	if err != nil {
 		return tables, err
 	}
