@@ -48,7 +48,11 @@ func (c *dbcleaner) Close() error {
 	return c.db.Close()
 }
 
-func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
+func (c *dbcleaner) TruncateTables() error {
+	return c.TruncateTablesExclude()
+}
+
+func (c *dbcleaner) TruncateTablesExclude(excludedTables ...string) error {
 	var waitGroup sync.WaitGroup
 
 	tables, err := c.getTables()

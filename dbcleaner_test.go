@@ -102,7 +102,7 @@ func TestTruncateTables(t *testing.T) {
 	t.Run("WithExludedTables", func(t *testing.T) {
 		db.Exec("INSERT INTO users(name) values('username')")
 
-		if err := cleaner.TruncateTables("users"); err != nil {
+		if err := cleaner.TruncateTablesExclude("users"); err != nil {
 			t.Fatalf("Shouldn't have error but got %s", err.Error())
 		}
 

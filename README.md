@@ -32,7 +32,7 @@ func TestMain(m *testing.Main) {
 
   exitCode = m.Run()
   // Truncate all but exclude migrations table
-  cleaner.TruncateTables("migrations")
+  cleaner.TruncateTablesExclude("migrations")
   os.Exit(exitCode)
 }
 
@@ -47,12 +47,12 @@ func TestSomething(t *testing.T) {
 
 ## Write cleaner for other drivers
 
-Basically all drivers supported by `database/sql` package are supported by
-`dbcleaner`. Find all drivers at
+Basically all drivers supported by `database/sql` package are also supported by
+`dbcleaner`. Check list of drivers:
 [https://github.com/golang/go/wiki/SQLDrivers](https://github.com/golang/go/wiki/SQLDrivers)
 
 The mechanism is literally the same as `sql.RegisterDriver`. All you need is to
-implement `helper.Helper` interface of `dbcleaner`.
+implement `helper.Helper` interface and call `dbcleaner.RegisterHelper`
 
 Want example? Check [this](https://github.com/khaiql/dbcleaner/tree/master/helper/pq)
 
