@@ -3,7 +3,6 @@ package dbcleaner
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/khaiql/dbcleaner/helper"
@@ -57,13 +56,17 @@ func (c *dbcleaner) TruncateTables(excludedTables ...string) error {
 		return err
 	}
 
-	tables = utils.SubtractStringArray(tables, excludedTables)
+	helper, err := FindHelper(c.driver)
+	if err != nil {
+		return err
+	}
 
+	tables = utils.SubtractStringArray(tables, excludedTables)
 	waitGroup.Add(len(tables))
 
 	for _, table := range tables {
 		go func(table string) {
-			c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", table))
+			c.db.Exec(helper.TruncateTableCommand(table))
 			waitGroup.Done()
 		}(table)
 	}
