@@ -54,7 +54,7 @@ Basically all drivers supported by `database/sql` package are supported by
 The mechanism is literally the same as `sql.RegisterDriver`. All you need is to
 implement `helper.Helper` interface of `dbcleaner`.
 
-Want example? Check [this]( `https://github.com/khaiql/dbcleaner/tree/master/helper/pq`)
+Want example? Check [this](https://github.com/khaiql/dbcleaner/tree/master/helper/pq)
 
 Please feel free to create PR for integrating more db drivers
 
