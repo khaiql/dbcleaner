@@ -129,3 +129,38 @@ func setup() {
 		}
 	}
 }
+
+type dummyHelper struct{}
+
+func (dummyHelper) GetTablesQuery() string {
+	return ""
+}
+
+func (dummyHelper) TruncateTableCommand(string) string {
+	return ""
+}
+
+func TestRegisterAndFindHelper(t *testing.T) {
+	dbcleaner.RegisterHelper("dummy", dummyHelper{})
+
+	t.Run("ExistingHelper", func(t *testing.T) {
+		helper, err := dbcleaner.FindHelper("dummy")
+		if err != nil {
+			t.Fatalf("Shouldn't return error but got %s", err.Error())
+		}
+
+		switch helper.(type) {
+		case dummyHelper:
+			t.Log("OK")
+		default:
+			t.Error("Invalid type")
+		}
+	})
+
+	t.Run("NotRegisteredHelper", func(t *testing.T) {
+		_, err := dbcleaner.FindHelper("postgres")
+		if err == nil {
+			t.Error("It should return an error")
+		}
+	})
+}

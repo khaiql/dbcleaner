@@ -2,14 +2,28 @@ package dbcleaner
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"sync"
 
+	"github.com/khaiql/dbcleaner/helper"
 	"github.com/khaiql/dbcleaner/utils"
 )
 
 type dbcleaner struct {
 	db *sql.DB
+}
+
+var (
+	mutex               sync.Mutex
+	registeredHelpers   = make(map[string]helper.Helper)
+	NotFoundHelperError = errors.New("Helper has not been registered")
+)
+
+func RegisterHelper(driverName string, helper helper.Helper) {
+	mutex.Lock()
+	registeredHelpers[driverName] = helper
+	mutex.Unlock()
 }
 
 func New(driver, connectionString string) (*dbcleaner, error) {
@@ -20,6 +34,14 @@ func New(driver, connectionString string) (*dbcleaner, error) {
 	}
 
 	return &dbcleaner{db}, err
+}
+
+func FindHelper(driver string) (helper.Helper, error) {
+	if helper, ok := registeredHelpers[driver]; ok {
+		return helper, nil
+	}
+
+	return nil, NotFoundHelperError
 }
 
 func (c *dbcleaner) Close() error {
