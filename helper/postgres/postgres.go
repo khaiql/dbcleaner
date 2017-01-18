@@ -1,8 +1,16 @@
 package postgres
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/khaiql/dbcleaner"
+)
 
 type Helper struct{}
+
+func init() {
+	dbcleaner.RegisterHelper("postgres", Helper{})
+}
 
 const queryAllTables = "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';"
 

@@ -3,6 +3,7 @@ package postgres_test
 import (
 	"testing"
 
+	"github.com/khaiql/dbcleaner"
 	"github.com/khaiql/dbcleaner/helper/postgres"
 )
 
@@ -21,5 +22,13 @@ func TestTruncateTableCommand(t *testing.T) {
 
 	if cmd != "TRUNCATE TABLE users" {
 		t.Error("Wrong command")
+	}
+}
+
+func TestInit(t *testing.T) {
+	t.Log("Imported helper/package should already have registered driver, so we only need to check that")
+	_, err := dbcleaner.FindHelper("postgres")
+	if err != nil {
+		t.Errorf("Shouldn't get error but got %s", err.Error())
 	}
 }
