@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/khaiql/dbcleaner"
-	"github.com/khaiql/dbcleaner/helper/postgres"
+	"github.com/khaiql/dbcleaner/helper/pq"
 )
 
 func TestGetTableQuery(t *testing.T) {

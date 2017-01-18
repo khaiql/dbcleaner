@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/khaiql/dbcleaner"
-	"github.com/khaiql/dbcleaner/helper/postgres"
+	"github.com/khaiql/dbcleaner/helper/pq"
 	_ "github.com/lib/pq"
 )
 
