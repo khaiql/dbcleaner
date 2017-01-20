@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	connWithDatabaseName    = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable dbname=dbcleaner"
-	connWithoutDatabaseName = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable"
+	postgresConnWithDatabaseName    = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable dbname=dbcleaner"
+	postgresConnWithoutDatabaseName = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable"
 )
 
 func getDbConnection(conn string) *sql.DB {
@@ -23,8 +23,8 @@ func getDbConnection(conn string) *sql.DB {
 	return db
 }
 
-func createDatabase() {
-	db := getDbConnection(connWithoutDatabaseName)
+func createDatabase(conn string) {
+	db := getDbConnection(conn)
 	defer db.Close()
 
 	_, err := db.Exec("CREATE DATABASE dbcleaner")
@@ -33,8 +33,8 @@ func createDatabase() {
 	}
 }
 
-func dropDatabase() {
-	db := getDbConnection(connWithoutDatabaseName)
+func dropDatabase(conn string) {
+	db := getDbConnection(conn)
 	defer db.Close()
 
 	_, err := db.Exec("DROP DATABASE dbcleaner")
@@ -45,7 +45,7 @@ func dropDatabase() {
 
 func TestNewCleaner(t *testing.T) {
 	t.Run("TestRegisteredDriver", func(t *testing.T) {
-		_, err := dbcleaner.New("postgres", connWithDatabaseName)
+		_, err := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 
 		if err != nil {
 			t.Fatalf("Should be able to open connection to db. Err: %s", err.Error())
@@ -63,7 +63,7 @@ func TestNewCleaner(t *testing.T) {
 
 func TestClose(t *testing.T) {
 	t.Run("Connection hasn't been closed", func(t *testing.T) {
-		cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
+		cleaner, _ := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 		err := cleaner.Close()
 
 		if err != nil {
@@ -74,13 +74,13 @@ func TestClose(t *testing.T) {
 
 func TestTruncateTables(t *testing.T) {
 	setup()
-	defer dropDatabase()
+	defer dropDatabase(postgresConnWithoutDatabaseName)
 
 	dbcleaner.RegisterHelper("postgres", postgres.Helper{})
-	cleaner, _ := dbcleaner.New("postgres", connWithDatabaseName)
+	cleaner, _ := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 	defer cleaner.Close()
 
-	db := getDbConnection(connWithDatabaseName)
+	db := getDbConnection(postgresConnWithDatabaseName)
 	defer db.Close()
 
 	t.Run("WithoutExcludedTables", func(t *testing.T) {
@@ -115,8 +115,8 @@ func TestTruncateTables(t *testing.T) {
 }
 
 func setup() {
-	createDatabase()
-	db := getDbConnection(connWithDatabaseName)
+	createDatabase(postgresConnWithoutDatabaseName)
+	db := getDbConnection(postgresConnWithDatabaseName)
 	defer db.Close()
 
 	commands := []string{
