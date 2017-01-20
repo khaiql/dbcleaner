@@ -75,7 +75,7 @@ func TestTruncateTables(t *testing.T) {
 	setup()
 	defer dropDatabase(postgresConnWithoutDatabaseName)
 
-	dbcleaner.RegisterHelper("postgres", postgres.Helper{})
+	dbcleaner.RegisterHelper("postgres", pq.Helper{})
 	cleaner, _ := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 	defer cleaner.Close()
 
