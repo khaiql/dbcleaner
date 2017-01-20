@@ -58,6 +58,11 @@ Want example? Check [this](https://github.com/khaiql/dbcleaner/tree/master/helpe
 
 Please feel free to create PR for integrating more db drivers
 
+## Setup database engine for testing
+
+1. Add your database engine to `docker-compose.yml`
+1. `docker-compose up -d`
+
 ## License
 
 MIT
