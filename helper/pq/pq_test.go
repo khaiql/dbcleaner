@@ -1,4 +1,4 @@
-package postgres_test
+package pq_test
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetTableQuery(t *testing.T) {
-	helper := postgres.Helper{}
+	helper := pq.Helper{}
 	query := helper.GetTablesQuery()
 
 	if query != "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';" {
@@ -17,7 +17,7 @@ func TestGetTableQuery(t *testing.T) {
 }
 
 func TestTruncateTablesCommand(t *testing.T) {
-	helper := postgres.Helper{}
+	helper := pq.Helper{}
 	truncatedTables := []string{"users"}
 	cmd := helper.TruncateTablesCommand(truncatedTables)
 
