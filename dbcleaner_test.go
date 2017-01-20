@@ -2,11 +2,10 @@ package dbcleaner_test
 
 import (
 	"database/sql"
-	"testing"
-
 	"github.com/khaiql/dbcleaner"
 	"github.com/khaiql/dbcleaner/helper/pq"
 	_ "github.com/lib/pq"
+	"testing"
 )
 
 const (
@@ -99,6 +98,12 @@ func TestTruncateTables(t *testing.T) {
 		}
 	})
 
+	t.Run("WhenExcludeAllTables", func(t *testing.T) {
+		if err := cleaner.TruncateTablesExclude("users", "customers"); err == nil {
+			t.Fatal("Should have error when there is no table to truncate")
+		}
+	})
+
 	t.Run("WithExludedTables", func(t *testing.T) {
 		db.Exec("INSERT INTO users(name) values('username')")
 
@@ -121,6 +126,7 @@ func setup() {
 
 	commands := []string{
 		"CREATE TABLE users(id serial primary key, name varchar)",
+		"CREATE TABLE customers(id serial primary key, name varchar)",
 		"INSERT INTO users(name) values ('UserA')",
 	}
 
@@ -138,7 +144,7 @@ func (dummyHelper) GetTablesQuery() string {
 	return ""
 }
 
-func (dummyHelper) TruncateTableCommand(string) string {
+func (dummyHelper) TruncateTablesCommand([]string) string {
 	return ""
 }
 
