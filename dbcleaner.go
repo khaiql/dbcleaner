@@ -53,8 +53,6 @@ func (c *dbcleaner) TruncateTables() error {
 }
 
 func (c *dbcleaner) TruncateTablesExclude(excludedTables ...string) error {
-	var waitGroup sync.WaitGroup
-
 	tables, err := c.getTables()
 	if err != nil {
 		return err
@@ -66,18 +64,8 @@ func (c *dbcleaner) TruncateTablesExclude(excludedTables ...string) error {
 	}
 
 	tables = utils.SubtractStringArray(tables, excludedTables)
-	waitGroup.Add(len(tables))
-
-	for _, table := range tables {
-		go func(table string) {
-			c.db.Exec(helper.TruncateTableCommand(table))
-			waitGroup.Done()
-		}(table)
-	}
-
-	waitGroup.Wait()
-
-	return nil
+	_, err = c.db.Exec(helper.TruncateTablesCommand(tables))
+	return err
 }
 
 func (c *dbcleaner) getTables() ([]string, error) {

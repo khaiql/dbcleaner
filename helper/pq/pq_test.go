@@ -16,9 +16,10 @@ func TestGetTableQuery(t *testing.T) {
 	}
 }
 
-func TestTruncateTableCommand(t *testing.T) {
+func TestTruncateTablesCommand(t *testing.T) {
 	helper := postgres.Helper{}
-	cmd := helper.TruncateTableCommand("users")
+	truncatedTables := []string{"users"}
+	cmd := helper.TruncateTablesCommand(truncatedTables)
 
 	if cmd != "TRUNCATE TABLE users" {
 		t.Error("Wrong command")
@@ -26,7 +27,6 @@ func TestTruncateTableCommand(t *testing.T) {
 }
 
 func TestInit(t *testing.T) {
-	t.Log("Imported helper/package should already have registered driver, so we only need to check that")
 	_, err := dbcleaner.FindHelper("postgres")
 	if err != nil {
 		t.Errorf("Shouldn't get error but got %s", err.Error())
