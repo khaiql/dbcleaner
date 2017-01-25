@@ -17,15 +17,19 @@ type dbcleaner struct {
 var (
 	mutex             sync.Mutex
 	registeredHelpers = make(map[string]helper.Helper)
+
+	// ErrHelperNotFound return when calling an unregistered Helper
 	ErrHelperNotFound = errors.New("Helper has not been registered")
 )
 
+// RegisterHelper register an Helper instance for a particular driver
 func RegisterHelper(driverName string, helper helper.Helper) {
 	mutex.Lock()
+	defer mutex.Unlock()
 	registeredHelpers[driverName] = helper
-	mutex.Unlock()
 }
 
+// New returns a Cleaner instance for a particular driver
 func New(driver, connectionString string) (*dbcleaner, error) {
 	db, err := sql.Open(driver, connectionString)
 
@@ -36,6 +40,7 @@ func New(driver, connectionString string) (*dbcleaner, error) {
 	return &dbcleaner{db, driver}, err
 }
 
+// FindHelper return a registered Helper using driver name
 func FindHelper(driver string) (helper.Helper, error) {
 	if helper, ok := registeredHelpers[driver]; ok {
 		return helper, nil
