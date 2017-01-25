@@ -30,7 +30,8 @@ func RegisterHelper(driverName string, helper helper.Helper) {
 	registeredHelpers[driverName] = helper
 }
 
-// New returns a Cleaner instance for a particular driver
+// New returns a Cleaner instance for a particular driver using provided
+// connectionString
 func New(driver, connectionString string) (*DBCleaner, error) {
 	db, err := sql.Open(driver, connectionString)
 
