@@ -1,14 +1,14 @@
-package pq_test
+package postgres_test
 
 import (
 	"testing"
 
 	"github.com/khaiql/dbcleaner"
-	"github.com/khaiql/dbcleaner/helper/pq"
+	"github.com/khaiql/dbcleaner/helper/postgres"
 )
 
 func TestGetTableQuery(t *testing.T) {
-	helper := pq.Helper{}
+	helper := postgres.Helper{}
 	query := helper.GetTablesQuery()
 
 	if query != "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';" {
@@ -17,7 +17,7 @@ func TestGetTableQuery(t *testing.T) {
 }
 
 func TestTruncateTablesCommand(t *testing.T) {
-	helper := pq.Helper{}
+	helper := postgres.Helper{}
 	truncatedTables := []string{"users"}
 	cmd := helper.TruncateTablesCommand(truncatedTables)
 

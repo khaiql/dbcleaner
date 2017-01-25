@@ -1,6 +1,6 @@
 # DbCleaner
 
-[![Build Status](https://travis-ci.org/khaiql/dbcleaner.svg?branch=master)](https://travis-ci.org/khaiql/dbcleaner)
+[![Build Status](https://travis-ci.org/khaiql/dbcleaner.svg?branch=master)](https://travis-ci.org/khaiql/dbcleaner) [![GoDoc](https://godoc.org/github.com/khaiql/dbcleaner?status.svg)](https://godoc.org/github.com/khaiql/dbcleaner) [![Go Report Card](https://goreportcard.com/badge/github.com/khaiql/dbcleaner)](https://goreportcard.com/report/github.com/khaiql/dbcleaner)
 
 Clean database for testing, inspired by [database_cleaner](https://github.com/DatabaseCleaner/database_cleaner) for Ruby
 
@@ -15,7 +15,8 @@ import (
 
   "github.com/khaiql/dbcleaner"
 
-  // Register postgres db driver
+  // Register postgres db driver, ignore this if you have already called it
+  somewhere else
   _ "github.com/lib/pq"
 
   // Register postgres cleaner helper
@@ -29,11 +30,9 @@ func TestMain(m *testing.Main) {
     panic(err)
   }
   defer cleaner.Close()
+  defer cleaner.TruncateTablesExclude("migrations")
 
-  exitCode = m.Run()
-  // Truncate all but exclude migrations table
-  cleaner.TruncateTablesExclude("migrations")
-  os.Exit(exitCode)
+  os.Exit(m.Run())
 }
 
 func TestSomething(t *testing.T) {

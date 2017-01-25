@@ -2,10 +2,11 @@ package dbcleaner_test
 
 import (
 	"database/sql"
-	"github.com/khaiql/dbcleaner"
-	"github.com/khaiql/dbcleaner/helper/pq"
-	_ "github.com/lib/pq"
 	"testing"
+
+	"github.com/khaiql/dbcleaner"
+	"github.com/khaiql/dbcleaner/helper/postgres"
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -75,7 +76,7 @@ func TestTruncateTables(t *testing.T) {
 	setup()
 	defer dropDatabase(postgresConnWithoutDatabaseName)
 
-	dbcleaner.RegisterHelper("postgres", pq.Helper{})
+	dbcleaner.RegisterHelper("postgres", postgres.Helper{})
 	cleaner, _ := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 	defer cleaner.Close()
 

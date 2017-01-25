@@ -9,50 +9,61 @@ import (
 	"github.com/khaiql/dbcleaner/utils"
 )
 
-type dbcleaner struct {
+// DBCleaner instance of cleaner that can perform cleaning tables data
+type DBCleaner struct {
 	db     *sql.DB
 	driver string
 }
 
 var (
-	mutex               sync.Mutex
-	registeredHelpers   = make(map[string]helper.Helper)
-	NotFoundHelperError = errors.New("Helper has not been registered")
+	mutex             sync.Mutex
+	registeredHelpers = make(map[string]helper.Helper)
+
+	// ErrHelperNotFound return when calling an unregistered Helper
+	ErrHelperNotFound = errors.New("Helper has not been registered")
 )
 
+// RegisterHelper register an Helper instance for a particular driver
 func RegisterHelper(driverName string, helper helper.Helper) {
 	mutex.Lock()
+	defer mutex.Unlock()
 	registeredHelpers[driverName] = helper
-	mutex.Unlock()
 }
 
-func New(driver, connectionString string) (*dbcleaner, error) {
+// New returns a Cleaner instance for a particular driver using provided
+// connectionString
+func New(driver, connectionString string) (*DBCleaner, error) {
 	db, err := sql.Open(driver, connectionString)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbcleaner{db, driver}, err
+	return &DBCleaner{db, driver}, err
 }
 
+// FindHelper return a registered Helper using driver name
 func FindHelper(driver string) (helper.Helper, error) {
 	if helper, ok := registeredHelpers[driver]; ok {
 		return helper, nil
 	}
 
-	return nil, NotFoundHelperError
+	return nil, ErrHelperNotFound
 }
 
-func (c *dbcleaner) Close() error {
+// Close closes connection to database
+func (c *DBCleaner) Close() error {
 	return c.db.Close()
 }
 
-func (c *dbcleaner) TruncateTables() error {
+// TruncateTables truncates data of all tables
+func (c *DBCleaner) TruncateTables() error {
 	return c.TruncateTablesExclude()
 }
 
-func (c *dbcleaner) TruncateTablesExclude(excludedTables ...string) error {
+// TruncateTablesExclude truncates data of all tables but exclude some specify
+// in the list
+func (c *DBCleaner) TruncateTablesExclude(excludedTables ...string) error {
 	tables, err := c.getTables()
 	if err != nil {
 		return err
@@ -68,7 +79,7 @@ func (c *dbcleaner) TruncateTablesExclude(excludedTables ...string) error {
 	return err
 }
 
-func (c *dbcleaner) getTables() ([]string, error) {
+func (c *DBCleaner) getTables() ([]string, error) {
 	tables := make([]string, 0)
 	helper, err := FindHelper(c.driver)
 	if err != nil {
