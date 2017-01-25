@@ -29,8 +29,8 @@ func TestMain(m *testing.Main) {
   if err != nil {
     panic(err)
   }
-  defer cleaner.Close()
   defer cleaner.TruncateTablesExclude("migrations")
+  defer cleaner.Close()
 
   os.Exit(m.Run())
 }
