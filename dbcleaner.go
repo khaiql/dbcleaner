@@ -15,9 +15,9 @@ type dbcleaner struct {
 }
 
 var (
-	mutex               sync.Mutex
-	registeredHelpers   = make(map[string]helper.Helper)
-	NotFoundHelperError = errors.New("Helper has not been registered")
+	mutex             sync.Mutex
+	registeredHelpers = make(map[string]helper.Helper)
+	ErrHelperNotFound = errors.New("Helper has not been registered")
 )
 
 func RegisterHelper(driverName string, helper helper.Helper) {
@@ -41,7 +41,7 @@ func FindHelper(driver string) (helper.Helper, error) {
 		return helper, nil
 	}
 
-	return nil, NotFoundHelperError
+	return nil, ErrHelperNotFound
 }
 
 func (c *dbcleaner) Close() error {
