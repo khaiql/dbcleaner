@@ -20,7 +20,7 @@ import (
   _ "github.com/lib/pq"
 
   // Register postgres cleaner helper
-  _ "github.com/khaiql/dbcleaner/helper/pq"
+  _ "github.com/khaiql/dbcleaner/helper/postgres"
 
 )
 
@@ -29,10 +29,12 @@ func TestMain(m *testing.Main) {
   if err != nil {
     panic(err)
   }
-  defer cleaner.TruncateTablesExclude("migrations")
   defer cleaner.Close()
 
-  os.Exit(m.Run())
+  code := m.Run()
+  cleaner.TruncateTablesExclude("migrations")
+
+  os.Exit(code)
 }
 
 func TestSomething(t *testing.T) {
