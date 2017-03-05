@@ -12,17 +12,18 @@ import (
 const (
 	postgresConnWithDatabaseName    = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable dbname=dbcleaner"
 	postgresConnWithoutDatabaseName = "host=127.0.0.1 port=5432 password=1234 user=postgres sslmode=disable"
+	postgresDriver                  = "postgres"
 )
 
-func TestTruncateTables(t *testing.T) {
+func TestPostgresTruncateTable(t *testing.T) {
 	setupPostgres()
-	defer dropDatabase(postgresConnWithoutDatabaseName)
+	defer dropDatabase(postgresDriver, postgresConnWithoutDatabaseName)
 
 	dbcleaner.RegisterHelper("postgres", postgres.Helper{})
 	cleaner, _ := dbcleaner.New("postgres", postgresConnWithDatabaseName)
 	defer cleaner.Close()
 
-	db := getDbConnection(postgresConnWithDatabaseName)
+	db := getDbConnection(postgresDriver, postgresConnWithDatabaseName)
 	defer db.Close()
 
 	t.Run("WithoutExcludedTables", func(t *testing.T) {
@@ -63,8 +64,8 @@ func TestTruncateTables(t *testing.T) {
 }
 
 func setupPostgres() {
-	createDatabase(postgresConnWithoutDatabaseName)
-	db := getDbConnection(postgresConnWithDatabaseName)
+	createDatabase(postgresDriver, postgresConnWithoutDatabaseName)
+	db := getDbConnection(postgresDriver, postgresConnWithDatabaseName)
 	defer db.Close()
 
 	commands := []string{

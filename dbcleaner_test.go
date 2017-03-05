@@ -7,8 +7,8 @@ import (
 	"github.com/khaiql/dbcleaner"
 )
 
-func getDbConnection(conn string) *sql.DB {
-	db, err := sql.Open("postgres", conn)
+func getDbConnection(driver, conn string) *sql.DB {
+	db, err := sql.Open(driver, conn)
 	if err != nil {
 		panic(err)
 	}
@@ -16,8 +16,8 @@ func getDbConnection(conn string) *sql.DB {
 	return db
 }
 
-func createDatabase(conn string) {
-	db := getDbConnection(conn)
+func createDatabase(driver, conn string) {
+	db := getDbConnection(driver, conn)
 	defer db.Close()
 
 	_, err := db.Exec("CREATE DATABASE dbcleaner")
@@ -26,8 +26,8 @@ func createDatabase(conn string) {
 	}
 }
 
-func dropDatabase(conn string) {
-	db := getDbConnection(conn)
+func dropDatabase(driver, conn string) {
+	db := getDbConnection(driver, conn)
 	defer db.Close()
 
 	_, err := db.Exec("DROP DATABASE dbcleaner")
