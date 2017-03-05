@@ -45,6 +45,7 @@ func TestSomething(t *testing.T) {
 ## Supporting drivers
 
 * postgres
+* mysql
 
 ## Write cleaner for other drivers
 
@@ -59,10 +60,10 @@ Want example? Check [this](https://github.com/khaiql/dbcleaner/tree/master/helpe
 
 Please feel free to create PR for integrating more db drivers
 
-## Setup database engine for testing
+## Running test
 
-1. Add your database engine to `docker-compose.yml`
 1. `docker-compose up -d`
+1. `go get -u github.com/lib/pq github.com/go-sql-driver/mysql`
 
 ## License
 
