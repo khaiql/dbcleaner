@@ -6,3 +6,10 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: "1234"
+
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
