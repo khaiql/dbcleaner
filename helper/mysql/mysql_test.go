@@ -14,10 +14,10 @@ func TestGetTableQuery(t *testing.T) {
 	}
 }
 
-func TruncateTablesCommand(t *testing.T) {
+func TestTruncateTableCommand(t *testing.T) {
 	h := mysql.Helper{}
-	cmd := h.TruncateTablesCommand([]string{"users", "addresses"})
-	expectedCmd := "truncate table users;truncate table addresses"
+	cmd := h.TruncateTableCommand("users")
+	expectedCmd := "TRUNCATE TABLE users;"
 
 	if cmd != expectedCmd {
 		t.Errorf("Expected %s. Got %s", expectedCmd, cmd)

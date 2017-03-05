@@ -71,7 +71,7 @@ func (dummyHelper) GetTablesQuery() string {
 	return ""
 }
 
-func (dummyHelper) TruncateTablesCommand([]string) string {
+func (dummyHelper) TruncateTableCommand(string) string {
 	return ""
 }
 

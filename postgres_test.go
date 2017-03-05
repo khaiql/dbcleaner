@@ -42,12 +42,6 @@ func TestPostgresTruncateTable(t *testing.T) {
 		}
 	})
 
-	t.Run("WhenExcludeAllTables", func(t *testing.T) {
-		if err := cleaner.TruncateTablesExclude("users", "customers"); err == nil {
-			t.Fatal("Should have error when there is no table to truncate")
-		}
-	})
-
 	t.Run("WithExludedTables", func(t *testing.T) {
 		db.Exec("INSERT INTO users(name) values('username')")
 

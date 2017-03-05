@@ -16,10 +16,10 @@ func TestGetTableQuery(t *testing.T) {
 	}
 }
 
-func TestTruncateTablesCommand(t *testing.T) {
+func TestTruncateTableCommand(t *testing.T) {
 	helper := postgres.Helper{}
-	truncatedTables := []string{"users"}
-	cmd := helper.TruncateTablesCommand(truncatedTables)
+	table := "users"
+	cmd := helper.TruncateTableCommand(table)
 
 	if cmd != "TRUNCATE TABLE users" {
 		t.Error("Wrong command")

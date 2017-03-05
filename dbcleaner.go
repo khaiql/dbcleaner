@@ -75,7 +75,17 @@ func (c *DBCleaner) TruncateTablesExclude(excludedTables ...string) error {
 	}
 
 	tables = utils.SubtractStringArray(tables, excludedTables)
-	_, err = c.db.Exec(helper.TruncateTablesCommand(tables))
+
+	var wg sync.WaitGroup
+	wg.Add(len(tables))
+	for _, table := range tables {
+		go func(tbl string) {
+			cmd := helper.TruncateTableCommand(tbl)
+			c.db.Exec(cmd)
+			wg.Done()
+		}(table)
+	}
+
 	return err
 }
 

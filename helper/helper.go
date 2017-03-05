@@ -4,5 +4,5 @@ package helper
 // also how to perform truncate on them
 type Helper interface {
 	GetTablesQuery() string
-	TruncateTablesCommand(tableNames []string) string
+	TruncateTableCommand(table string) string
 }

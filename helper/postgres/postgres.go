@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/khaiql/dbcleaner"
 )
@@ -22,8 +21,7 @@ func (Helper) GetTablesQuery() string {
 	return queryAllTables
 }
 
-// TruncateTablesCommand accepts list of tables as argument, returns a command
-// to clear all data of tables
-func (Helper) TruncateTablesCommand(tableNames []string) string {
-	return fmt.Sprintf("TRUNCATE TABLE %s", strings.Join(tableNames, ","))
+// TruncateTableCommand returns postgres command to truncate table
+func (Helper) TruncateTableCommand(table string) string {
+	return fmt.Sprintf("TRUNCATE TABLE %s", table)
 }
