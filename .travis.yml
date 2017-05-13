@@ -1,2 +1,5 @@
 ---
 language: go
+services:
+  - postgresql
+  - mysql
