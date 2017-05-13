@@ -4,7 +4,7 @@
 
 Clean database for testing, inspired by [database_cleaner](https://github.com/DatabaseCleaner/database_cleaner) for Ruby
 
-## How to use
+## Basic usage
 
 * Getting started: `go get -u github.com/khaiql/dbcleaner`
 
@@ -42,7 +42,56 @@ func TestSomething(t *testing.T) {
 }
 ```
 
-## Supporting drivers
+**NOTE:** using `TestMain` will only clear database once after all test cases
+
+## Using with testify's suite (recommended)
+
+```
+import (
+	"testing"
+
+	"github.com/khaiql/dbcleaner"
+	_ "github.com/khaiql/dbcleaner/helper/postgres"
+	"github.com/stretchr/testify/suite"
+)
+
+type ExampleSuite struct {
+	suite.Suite
+	DBCleaner *dbcleaner.DBCleaner
+}
+
+// Init dbcleaner instance at the beginning of every suite
+func (suite *ExampleSuite) SetupSuite() {
+	cleaner, err := dbcleaner.New("postgres", "YOUR_DB_CONNECTION_STRING")
+	if err != nil {
+		panic(err)
+	}
+
+	suite.DBCleaner = cleaner
+}
+
+// Close and release connection at the end of suite
+func (suite *ExampleSuite) TearDownSuite() {
+	suite.DBCleaner.Close()
+}
+
+// Truncate tables after every test case. Note: sub-test using t.Run wouldn't be
+// taken into account
+func (suite *ExampleSuite) TearDownTest() {
+	suite.DBCleaner.TruncateTablesExclude("migrations")
+}
+
+func (suite *ExampleSuite) TestSomething() {
+  // Have some meaningful test
+  suite.Equal(true, true)
+}
+
+func TestRunSuite(t *testing.T) {
+  suite.Run(t, new(ExampleSuite))
+}
+```
+
+## Support drivers
 
 * postgres
 * mysql
