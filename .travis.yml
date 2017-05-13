@@ -3,5 +3,11 @@ language: go
 services:
   - postgresql
   - mysql
+go:
+  - tip
+before_install:
+  - go get github.com/mattn/goveralls
+script:
+  - $HOME/gopath/bin/goveralls -service=travis-ci
 before_script:
   - echo "USE mysql;\nUPDATE user SET password=PASSWORD('1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
