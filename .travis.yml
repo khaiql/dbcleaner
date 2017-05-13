@@ -3,3 +3,5 @@ language: go
 services:
   - postgresql
   - mysql
+before_script:
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
