@@ -23,5 +23,5 @@ func (Helper) GetTablesQuery() string {
 
 // TruncateTableCommand returns postgres command to truncate table
 func (Helper) TruncateTableCommand(table string) string {
-	return fmt.Sprintf("TRUNCATE TABLE %s", table)
+	return fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table)
 }
