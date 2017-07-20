@@ -64,8 +64,9 @@ func setupPostgres() {
 
 	commands := []string{
 		"CREATE TABLE users(id serial primary key, name varchar)",
-		"CREATE TABLE customers(id serial primary key, name varchar)",
+		"CREATE TABLE customers(id serial primary key, user_id integer REFERENCES users)",
 		"INSERT INTO users(name) values ('UserA')",
+		"INSERT INTO customers(user_id) values (currval('users_id_seq'))",
 	}
 
 	for _, cmd := range commands {

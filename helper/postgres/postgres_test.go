@@ -21,7 +21,7 @@ func TestTruncateTableCommand(t *testing.T) {
 	table := "users"
 	cmd := helper.TruncateTableCommand(table)
 
-	if cmd != "TRUNCATE TABLE users" {
+	if cmd != "TRUNCATE TABLE users CASCADE" {
 		t.Error("Wrong command")
 	}
 }
