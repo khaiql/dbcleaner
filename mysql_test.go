@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	mysqlConnWithoutDatabase = "root:1234@/mysql"
-	mysqlConnWithDatabase    = "root:1234@/dbcleaner"
+	mysqlConnWithoutDatabase = "root@tcp(127.0.0.1:3306)/mysql"
+	mysqlConnWithDatabase    = "root@tcp(127.0.0.1:3306)/dbcleaner"
 	mysqlDriver              = "mysql"
 )
 

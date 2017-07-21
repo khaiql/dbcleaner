@@ -3,6 +3,7 @@ package mysql_test
 import (
 	"testing"
 
+	"github.com/khaiql/dbcleaner"
 	"github.com/khaiql/dbcleaner/helper/mysql"
 )
 
@@ -21,5 +22,12 @@ func TestTruncateTableCommand(t *testing.T) {
 
 	if cmd != expectedCmd {
 		t.Errorf("Expected %s. Got %s", expectedCmd, cmd)
+	}
+}
+
+func TestInit(t *testing.T) {
+	_, err := dbcleaner.FindHelper("mysql")
+	if err != nil {
+		t.Errorf("Shouldn't get error but got %s", err.Error())
 	}
 }

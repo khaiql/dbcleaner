@@ -1,9 +1,17 @@
 package mysql
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/khaiql/dbcleaner"
+)
 
 // Helper is a mysql helper
 type Helper struct{}
+
+func init() {
+	dbcleaner.RegisterHelper("mysql", Helper{})
+}
 
 const getTableQuery = "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()"
 
