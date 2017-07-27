@@ -2,7 +2,6 @@ package dbcleaner_test
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"testing"
 
@@ -17,11 +16,11 @@ type expectedResult struct {
 func checkResult(db *sql.DB, expected expectedResult) error {
 	numRecords, err := countRecords(db, expected.table)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Couldn't count %s - mysql. Err: %s", expected.table, err.Error()))
+		return err
 	}
 
 	if numRecords != expected.numRecords {
-		return errors.New(fmt.Sprintf("Table %s should have %d records. Got %d", expected.table, expected.numRecords, numRecords))
+		return fmt.Errorf("Table %s should have %d records. Got %d", expected.table, expected.numRecords, numRecords)
 	}
 
 	return nil
