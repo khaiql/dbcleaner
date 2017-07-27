@@ -39,14 +39,9 @@ func TestMysqlCleaner(t *testing.T) {
 			{table: "addresses", numRecords: 0},
 		}
 
-		for _, expectedResult := range expectedResults {
-			numRecords, err := countRecords(db, expectedResult.table)
-			if err != nil {
-				t.Fatalf("Couldn't count %s - mysql. Err: %s", expectedResult.table, err.Error())
-			}
-
-			if numRecords != expectedResult.numRecords {
-				t.Errorf("Should get %d. Got %d", expectedResult.numRecords, numRecords)
+		for _, expected := range expectedResults {
+			if err := checkResult(db, expected); err != nil {
+				t.Error(err)
 			}
 		}
 	})
