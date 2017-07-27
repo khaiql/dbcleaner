@@ -2,10 +2,40 @@ package dbcleaner_test
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/khaiql/dbcleaner"
 )
+
+type expectedResult struct {
+	table      string
+	numRecords int
+}
+
+func checkResult(db *sql.DB, expected expectedResult) error {
+	numRecords, err := countRecords(db, expected.table)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Couldn't count %s - mysql. Err: %s", expected.table, err.Error()))
+	}
+
+	if numRecords != expected.numRecords {
+		return errors.New(fmt.Sprintf("Table %s should have %d records. Got %d", expected.table, expected.numRecords, numRecords))
+	}
+
+	return nil
+}
+
+func countRecords(db *sql.DB, table string) (int, error) {
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s", table)
+	var count int
+	if err := db.QueryRow(query).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
 
 func getDbConnection(driver, conn string) *sql.DB {
 	db, err := sql.Open(driver, conn)

@@ -1,7 +1,7 @@
 package dbcleaner_test
 
 import (
-	"fmt"
+	"database/sql"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,41 +16,83 @@ const (
 )
 
 func TestMysqlCleaner(t *testing.T) {
+	setupMysqlDatabase()
+	defer dropDatabase(mysqlDriver, mysqlConnWithDatabase)
+
 	dbcleaner.RegisterHelper("mysql", mysql.Helper{})
 	cleaner, _ := dbcleaner.New("mysql", mysqlConnWithDatabase)
 	defer cleaner.Close()
 
-	setupMysql()
-	defer dropDatabase(mysqlDriver, mysqlConnWithDatabase)
-
-	if err := cleaner.TruncateTablesExclude("addresses"); err != nil {
-		t.Errorf("Shouldn't get error, but got: %s", err.Error())
-	}
-
 	db := getDbConnection(mysqlDriver, mysqlConnWithDatabase)
+	defer db.Close()
 
-	testcases := []struct {
-		table         string
-		expectedCount int
-	}{
-		{"users", 0},
-		{"addresses", 1},
-	}
+	t.Run("TruncateTablesExclude", func(t *testing.T) {
+		insertMysqlTestData(db)
+		defer truncateMysqlTestData(db)
 
-	for _, cs := range testcases {
-		count := -2
-		query := fmt.Sprintf("SELECT COUNT(*) FROM %s", cs.table)
-		if err := db.QueryRow(query).Scan(&count); err != nil {
-			t.Fatalf("Couldn't count %s - mysql. Err: %s", cs.table, err.Error())
+		if err := cleaner.TruncateTables(); err != nil {
+			t.Errorf("Shouldn't get error, but got: %s", err.Error())
 		}
 
-		if count != cs.expectedCount {
-			t.Errorf("Should get %d. Got %d", cs.expectedCount, count)
+		expectedResults := []expectedResult{
+			{table: "users", numRecords: 0},
+			{table: "addresses", numRecords: 0},
 		}
-	}
+
+		for _, expectedResult := range expectedResults {
+			numRecords, err := countRecords(db, expectedResult.table)
+			if err != nil {
+				t.Fatalf("Couldn't count %s - mysql. Err: %s", expectedResult.table, err.Error())
+			}
+
+			if numRecords != expectedResult.numRecords {
+				t.Errorf("Should get %d. Got %d", expectedResult.numRecords, numRecords)
+			}
+		}
+	})
+
+	t.Run("TruncateTablesExclude", func(t *testing.T) {
+		insertMysqlTestData(db)
+		defer truncateMysqlTestData(db)
+
+		if err := cleaner.TruncateTablesExclude("addresses"); err != nil {
+			t.Fatalf("Shouldn't have error but got %s", err.Error())
+		}
+
+		expectedResults := []expectedResult{
+			{table: "users", numRecords: 0},
+			{table: "addresses", numRecords: 1},
+		}
+
+		for _, expected := range expectedResults {
+			if err := checkResult(db, expected); err != nil {
+				t.Error(err)
+			}
+		}
+	})
+
+	t.Run("TruncateTablesOnly", func(t *testing.T) {
+		insertMysqlTestData(db)
+		defer truncateMysqlTestData(db)
+
+		if err := cleaner.TruncateTablesOnly("addresses"); err != nil {
+			t.Errorf("Shouldn't get error, but got: %s", err.Error())
+		}
+
+		expectedResults := []expectedResult{
+			{table: "users", numRecords: 1},
+			{table: "addresses", numRecords: 0},
+		}
+
+		for _, expected := range expectedResults {
+			if err := checkResult(db, expected); err != nil {
+				t.Error(err)
+			}
+		}
+	})
 }
 
-func setupMysql() {
+func setupMysqlDatabase() {
 	createDatabase(mysqlDriver, mysqlConnWithoutDatabase)
 	db := getDbConnection(mysqlDriver, mysqlConnWithDatabase)
 	defer db.Close()
@@ -58,8 +100,34 @@ func setupMysql() {
 	commands := []string{
 		"CREATE TABLE users(name varchar(100))",
 		"CREATE TABLE addresses(addr varchar(100))",
-		"INSERT INTO users values(\"Dummy\")",
+	}
+
+	for _, cmd := range commands {
+		_, err := db.Exec(cmd)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func insertMysqlTestData(db *sql.DB) {
+	commands := []string{
 		"INSERT INTO addresses values(\"Singapore\")",
+		"INSERT INTO users values(\"Dummy\")",
+	}
+
+	for _, cmd := range commands {
+		_, err := db.Exec(cmd)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func truncateMysqlTestData(db *sql.DB) {
+	commands := []string{
+		"TRUNCATE TABLE addresses",
+		"TRUNCATE TABLE users",
 	}
 
 	for _, cmd := range commands {

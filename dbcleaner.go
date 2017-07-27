@@ -70,12 +70,20 @@ func (c *DBCleaner) TruncateTablesExclude(excludedTables ...string) error {
 		return err
 	}
 
+	tables = utils.SubtractStringArray(tables, excludedTables)
+	return c.truncateTables(tables...)
+}
+
+// TruncateTablesOnly truncates data of included tables
+func (c *DBCleaner) TruncateTablesOnly(includedTables ...string) error {
+	return c.truncateTables(includedTables...)
+}
+
+func (c *DBCleaner) truncateTables(tables ...string) error {
 	helper, err := FindHelper(c.driver)
 	if err != nil {
 		return err
 	}
-
-	tables = utils.SubtractStringArray(tables, excludedTables)
 
 	var wg sync.WaitGroup
 	wg.Add(len(tables))
