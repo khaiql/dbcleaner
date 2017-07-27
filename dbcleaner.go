@@ -71,11 +71,11 @@ func (c *DBCleaner) TruncateTablesExclude(excludedTables ...string) error {
 	}
 
 	tables = utils.SubtractStringArray(tables, excludedTables)
-	return c.TruncateTablesOnly(tables...)
+	return c.TruncateSelectedTables(tables...)
 }
 
-// TruncateTablesOnly truncates data of included tables
-func (c *DBCleaner) TruncateTablesOnly(tables ...string) error {
+// TruncateSelectedTables truncates data of included tables
+func (c *DBCleaner) TruncateSelectedTables(tables ...string) error {
 	helper, err := FindHelper(c.driver)
 	if err != nil {
 		return err

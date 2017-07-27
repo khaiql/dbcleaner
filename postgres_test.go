@@ -67,11 +67,11 @@ func TestPostgresCleaner(t *testing.T) {
 		}
 	})
 
-	t.Run("TruncateTablesOnly", func(t *testing.T) {
+	t.Run("TruncateSelectedTables", func(t *testing.T) {
 		insertPostgresTestData(db)
 		defer truncatePostgresTestData(db)
 
-		if err := cleaner.TruncateTablesOnly("customers"); err != nil {
+		if err := cleaner.TruncateSelectedTables("customers"); err != nil {
 			t.Fatalf("Shouldn't have error but got %s", err.Error())
 		}
 

@@ -26,7 +26,7 @@ func TestMysqlCleaner(t *testing.T) {
 	db := getDbConnection(mysqlDriver, mysqlConnWithDatabase)
 	defer db.Close()
 
-	t.Run("TruncateTablesExclude", func(t *testing.T) {
+	t.Run("TruncateTables", func(t *testing.T) {
 		insertMysqlTestData(db)
 		defer truncateMysqlTestData(db)
 
@@ -66,11 +66,11 @@ func TestMysqlCleaner(t *testing.T) {
 		}
 	})
 
-	t.Run("TruncateTablesOnly", func(t *testing.T) {
+	t.Run("TruncateSelectedTables", func(t *testing.T) {
 		insertMysqlTestData(db)
 		defer truncateMysqlTestData(db)
 
-		if err := cleaner.TruncateTablesOnly("addresses"); err != nil {
+		if err := cleaner.TruncateSelectedTables("addresses"); err != nil {
 			t.Errorf("Shouldn't get error, but got: %s", err.Error())
 		}
 
