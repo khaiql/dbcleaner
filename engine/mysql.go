@@ -1,4 +1,4 @@
-package mysql
+package engine
 
 import (
 	"database/sql"
@@ -7,22 +7,24 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Mysql struct {
+// MySQL dbEngine
+type MySQL struct {
 	db *sql.DB
 }
 
-func New(dsn string) *Mysql {
+// NewMySQLEngine returns Mysql engine that knows how to truncate a table
+func NewMySQLEngine(dsn string) *MySQL {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Mysql{
+	return &MySQL{
 		db: db,
 	}
 }
 
-func (mysql *Mysql) Truncate(table string) error {
+func (mysql *MySQL) Truncate(table string) error {
 	tx, err := mysql.db.Begin()
 	if err != nil {
 		return err

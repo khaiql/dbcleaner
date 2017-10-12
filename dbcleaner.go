@@ -7,8 +7,8 @@ import (
 	"github.com/khaiql/dbcleaner/engine"
 )
 
-// Cleaner interface
-type Cleaner interface {
+// DbCleaner interface
+type DbCleaner interface {
 	// SetEngine sets dbEngine, can be mysql, postgres...
 	SetEngine(dbEngine engine.Engine)
 
@@ -22,15 +22,15 @@ type Cleaner interface {
 	Clean(tables ...string) error
 }
 
-// Default implementation of Cleaner. Its default dbEngine is NoOp
+// Cleaner implementation of DbCleaner. Its default dbEngine is NoOp
 // Use SetEngine to set actual dbEngine that your app is using
-var Default Cleaner
+var Cleaner DbCleaner
 
 // ErrTableNeverLockBefore is paniced if calling Release on table that havent' been acquired before
 var ErrTableNeverLockBefore = errors.New("Table has never been locked before")
 
 func init() {
-	Default = &cleanerImpl{
+	Cleaner = &cleanerImpl{
 		locks:    make(map[string]*sync.RWMutex),
 		dbEngine: &engine.NoOp{},
 	}
