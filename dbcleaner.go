@@ -1,22 +1,36 @@
 package dbcleaner
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/khaiql/dbcleaner/engine"
 )
 
+// Cleaner interface
 type Cleaner interface {
+	// SetEngine sets dbEngine, can be mysql, postgres...
 	SetEngine(dbEngine engine.Engine)
-	RLock(tables ...string)
-	RUnlock(tables ...string)
+
+	// Acquire will lock tables passed in params so data in the table would not be deleted by other test cases
+	Acquire(tables ...string)
+
+	// Release releases locks on tables which have been acquired before
+	Release(tables ...string)
+
+	// Clean calls Truncate the tables
 	Clean(tables ...string) error
 }
 
-var DefaultCleaner Cleaner
+// Default implementation of Cleaner. Its default dbEngine is NoOp
+// Use SetEngine to set actual dbEngine that your app is using
+var Default Cleaner
+
+// ErrTableNeverLockBefore is paniced if calling Release on table that havent' been acquired before
+var ErrTableNeverLockBefore = errors.New("Table has never been locked before")
 
 func init() {
-	DefaultCleaner = &cleanerImpl{
+	Default = &cleanerImpl{
 		locks:    make(map[string]*sync.RWMutex),
 		dbEngine: &engine.NoOp{},
 	}
@@ -31,7 +45,7 @@ func (c *cleanerImpl) SetEngine(dbEngine engine.Engine) {
 	c.dbEngine = dbEngine
 }
 
-func (c *cleanerImpl) RLock(tables ...string) {
+func (c *cleanerImpl) Acquire(tables ...string) {
 	for _, table := range tables {
 		if c.locks[table] == nil {
 			c.locks[table] = new(sync.RWMutex)
@@ -41,8 +55,12 @@ func (c *cleanerImpl) RLock(tables ...string) {
 	}
 }
 
-func (c *cleanerImpl) RUnlock(tables ...string) {
+func (c *cleanerImpl) Release(tables ...string) {
 	for _, table := range tables {
+		if c.locks[table] == nil {
+			panic(ErrTableNeverLockBefore)
+		}
+
 		c.locks[table].RUnlock()
 	}
 }
