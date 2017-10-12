@@ -1,122 +1,63 @@
 package dbcleaner
 
 import (
-	"database/sql"
-	"errors"
-	"log"
 	"sync"
 
-	"github.com/khaiql/dbcleaner/helper"
-	"github.com/khaiql/dbcleaner/utils"
+	"github.com/khaiql/dbcleaner/engine"
 )
 
-// DBCleaner instance of cleaner that can perform cleaning tables data
-type DBCleaner struct {
-	db     *sql.DB
-	driver string
+type Cleaner interface {
+	SetEngine(dbEngine engine.Engine)
+	RLock(tables ...string)
+	RUnlock(tables ...string)
+	Clean(tables ...string) error
 }
 
-var (
-	mutex             sync.Mutex
-	registeredHelpers = make(map[string]helper.Helper)
+var DefaultCleaner Cleaner
 
-	// ErrHelperNotFound return when calling an unregistered Helper
-	ErrHelperNotFound = errors.New("Helper has not been registered")
-)
-
-// RegisterHelper register an Helper instance for a particular driver
-func RegisterHelper(driverName string, helper helper.Helper) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	registeredHelpers[driverName] = helper
-}
-
-// New returns a Cleaner instance for a particular driver using provided
-// connectionString
-func New(driver, connectionString string) (*DBCleaner, error) {
-	db, err := sql.Open(driver, connectionString)
-
-	if err != nil {
-		return nil, err
+func init() {
+	DefaultCleaner = &cleanerImpl{
+		locks:    make(map[string]*sync.RWMutex),
+		dbEngine: &engine.NoOp{},
 	}
-
-	return &DBCleaner{db, driver}, err
 }
 
-// FindHelper return a registered Helper using driver name
-func FindHelper(driver string) (helper.Helper, error) {
-	if helper, ok := registeredHelpers[driver]; ok {
-		return helper, nil
-	}
-
-	return nil, ErrHelperNotFound
+type cleanerImpl struct {
+	locks    map[string]*sync.RWMutex
+	dbEngine engine.Engine
 }
 
-// Close closes connection to database
-func (c *DBCleaner) Close() error {
-	return c.db.Close()
+func (c *cleanerImpl) SetEngine(dbEngine engine.Engine) {
+	c.dbEngine = dbEngine
 }
 
-// TruncateTables truncates data of all tables
-func (c *DBCleaner) TruncateTables() error {
-	return c.TruncateTablesExclude()
-}
-
-// TruncateTablesExclude truncates data of all tables but exclude some specify
-// in the list
-func (c *DBCleaner) TruncateTablesExclude(excludedTables ...string) error {
-	tables, err := c.getTables()
-	if err != nil {
-		return err
-	}
-
-	tables = utils.SubtractStringArray(tables, excludedTables)
-	return c.TruncateSelectedTables(tables...)
-}
-
-// TruncateSelectedTables truncates data of included tables
-func (c *DBCleaner) TruncateSelectedTables(tables ...string) error {
-	helper, err := FindHelper(c.driver)
-	if err != nil {
-		return err
-	}
-
-	var wg sync.WaitGroup
-	wg.Add(len(tables))
-
+func (c *cleanerImpl) RLock(tables ...string) {
 	for _, table := range tables {
-		go func(tbl string) {
-			cmd := helper.TruncateTableCommand(tbl)
-			if _, err := c.db.Exec(cmd); err != nil {
-				log.Fatalf("Failed to truncate table %s. Error: %s", tbl, err.Error())
-			}
-			wg.Done()
-		}(table)
+		if c.locks[table] == nil {
+			c.locks[table] = new(sync.RWMutex)
+		}
+
+		c.locks[table].RLock()
 	}
-
-	wg.Wait()
-
-	return nil
 }
 
-func (c *DBCleaner) getTables() ([]string, error) {
-	tables := make([]string, 0)
-	helper, err := FindHelper(c.driver)
-	if err != nil {
-		return tables, err
+func (c *cleanerImpl) RUnlock(tables ...string) {
+	for _, table := range tables {
+		c.locks[table].RUnlock()
 	}
+}
 
-	rows, err := c.db.Query(helper.GetTablesQuery())
-	if err != nil {
-		return tables, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var value string
-		if err = rows.Scan(&value); err == nil {
-			tables = append(tables, value)
+func (c *cleanerImpl) Clean(tables ...string) error {
+	for _, table := range tables {
+		if c.locks[table] != nil {
+			c.locks[table].Lock()
+			defer c.locks[table].Unlock()
+		}
+
+		if err := c.dbEngine.Truncate(table); err != nil {
+			return err
 		}
 	}
 
-	return tables, nil
+	return nil
 }
