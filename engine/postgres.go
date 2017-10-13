@@ -14,7 +14,7 @@ type Postgres struct {
 
 // NewPostgresEngine returns engine for Postgres db
 func NewPostgresEngine(dsn string) Engine {
-	db, err := sql.Open("posgres", dsn)
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err)
 	}

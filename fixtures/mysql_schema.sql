@@ -1,5 +1,6 @@
 CREATE TABLE users (
   id bigint not null AUTO_INCREMENT,
+  name varchar(255),
   primary key (id)
 );
 

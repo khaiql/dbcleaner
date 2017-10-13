@@ -8,6 +8,8 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
   - mysql -e 'CREATE DATABASE IF NOT EXISTS dbcleaner_test'
-  - mysql -u root --default-character-set=utf8 dbcleaner_test < fixtures/schema.sql
+  - mysql -u root --default-character-set=utf8 dbcleaner_test < fixtures/mysql_schema.sql
+  - psql -U postgres -c "CREATE DATABASE dbcleaner_test"
+  - psql -U postgres -d dbcleaner_test -f fixtures/postgres_schema.sql
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
