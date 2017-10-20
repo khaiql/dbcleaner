@@ -24,6 +24,11 @@ import "gopkg.in/khaiql/dbcleaner.v2"
 go get github.com/stretchr/testify
 ```
 
+* For people who is using old version (v1.0), please change your import to
+```go
+import "gopkg.in/khaiql/dbcleaner.v1"
+```
+
 ## Using with testify's suite
 
 ```

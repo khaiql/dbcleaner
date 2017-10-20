@@ -19,9 +19,6 @@ type DbCleaner interface {
 	// Acquire will lock tables passed in params so data in the table would not be deleted by other test cases
 	Acquire(tables ...string)
 
-	// Release releases locks on tables which have been acquired before
-	Release(tables ...string)
-
 	// Clean calls Truncate the tables
 	Clean(tables ...string) error
 
@@ -29,16 +26,13 @@ type DbCleaner interface {
 	Close() error
 }
 
-// Cleaner implementation of DbCleaner. Its default dbEngine is NoOp
-// Use SetEngine to set actual dbEngine that your app is using
-var Cleaner DbCleaner
-
 // ErrTableNeverLockBefore is paniced if calling Release on table that havent' been acquired before
 var ErrTableNeverLockBefore = errors.New("Table has never been locked before")
 
-func init() {
-	Cleaner = &cleanerImpl{
-		locks:    make(map[string]*sync.RWMutex),
+// New returns a default Cleaner with Noop Engine. Call SetEngine to set an actual working engine
+func New() DbCleaner {
+	return &cleanerImpl{
+		locks:    map[string]*sync.RWMutex{},
 		dbEngine: &engine.NoOp{},
 	}
 }
@@ -62,19 +56,10 @@ func (c *cleanerImpl) Acquire(tables ...string) {
 	}
 }
 
-func (c *cleanerImpl) Release(tables ...string) {
-	for _, table := range tables {
-		if c.locks[table] == nil {
-			panic(ErrTableNeverLockBefore)
-		}
-
-		c.locks[table].RUnlock()
-	}
-}
-
 func (c *cleanerImpl) Clean(tables ...string) error {
 	for _, table := range tables {
 		if c.locks[table] != nil {
+			c.locks[table].RUnlock()
 			c.locks[table].Lock()
 			defer c.locks[table].Unlock()
 		}

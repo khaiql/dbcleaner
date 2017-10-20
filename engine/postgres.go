@@ -3,8 +3,6 @@ package engine
 import (
 	"database/sql"
 	"fmt"
-
-	_ "github.com/lib/pq"
 )
 
 // Postgres dbEngine
