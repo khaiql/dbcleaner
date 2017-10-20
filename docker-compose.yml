@@ -4,8 +4,6 @@ services:
     image: postgres:9.5.4
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: "1234"
 
   mysql:
     image: mysql:latest
