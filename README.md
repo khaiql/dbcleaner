@@ -41,7 +41,7 @@ type ExampleSuite struct {
 func (suite *ExampleSuite) SetupSuite() {
   // Init and set mysql cleanup engine
   mysql := engine.NewMySQLEngine("YOUR_DB_DSN")
-  dbcleaner.SetGlobalEngine(mysql)
+  dbcleanerCleaner.SetEngine(mysql)
 }
 
 func (suite *ExampleSuite) SetupTest() {

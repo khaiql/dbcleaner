@@ -12,6 +12,7 @@ import (
 func TestClean(t *testing.T) {
 	mockEngine := &engine.MockEngine{}
 	mockEngine.On("Truncate", mock.AnythingOfType("string")).Return(nil)
+	mockEngine.On("Close").Return(nil)
 
 	Cleaner.SetEngine(mockEngine)
 
@@ -36,6 +37,11 @@ func TestClean(t *testing.T) {
 		}
 
 		mockEngine.AssertCalled(t, "Truncate", tbName)
+	})
+
+	t.Run("TestClose", func(t *testing.T) {
+		Cleaner.Close()
+		mockEngine.AssertCalled(t, "Close")
 	})
 
 	t.Run("TestTruncateError", func(t *testing.T) {

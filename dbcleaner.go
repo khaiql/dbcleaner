@@ -43,11 +43,6 @@ func init() {
 	}
 }
 
-// SetGlobalEngine calls SetEngine on package level Cleaner instance
-func SetGlobalEngine(dbEngine engine.Engine) {
-	Cleaner.SetEngine(dbEngine)
-}
-
 type cleanerImpl struct {
 	locks    map[string]*sync.RWMutex
 	dbEngine engine.Engine
