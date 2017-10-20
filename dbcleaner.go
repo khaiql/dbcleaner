@@ -1,3 +1,7 @@
+// Package dbcleaner helps cleaning up database's tables upon unit test.
+// With the help of https://github.com/stretchr/testify/tree/master/suite, we can easily
+// acquire the tables using in the test in SetupTest or SetupSuite, and cleanup all data
+// using TearDownTest or TearDownSuite
 package dbcleaner
 
 import (
@@ -20,6 +24,9 @@ type DbCleaner interface {
 
 	// Clean calls Truncate the tables
 	Clean(tables ...string) error
+
+	// Close calls corresponding method on dbEngine to release connection to db
+	Close() error
 }
 
 // Cleaner implementation of DbCleaner. Its default dbEngine is NoOp
@@ -34,6 +41,11 @@ func init() {
 		locks:    make(map[string]*sync.RWMutex),
 		dbEngine: &engine.NoOp{},
 	}
+}
+
+// SetGlobalEngine calls SetEngine on package level Cleaner instance
+func SetGlobalEngine(dbEngine engine.Engine) {
+	Cleaner.SetEngine(dbEngine)
 }
 
 type cleanerImpl struct {
@@ -78,4 +90,8 @@ func (c *cleanerImpl) Clean(tables ...string) error {
 	}
 
 	return nil
+}
+
+func (c *cleanerImpl) Close() error {
+	return c.dbEngine.Close()
 }

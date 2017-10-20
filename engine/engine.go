@@ -4,4 +4,7 @@ package engine
 type Engine interface {
 	// Truncate a table
 	Truncate(table string) error
+
+	// Close db connection
+	Close() error
 }

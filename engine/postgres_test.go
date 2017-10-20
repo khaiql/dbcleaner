@@ -20,4 +20,9 @@ func TestPostgresTruncate(t *testing.T) {
 		err := dbEngine.Truncate("addresses")
 		assert.NoError(err)
 	})
+
+	t.Run("Close db connection", func(t *testing.T) {
+		err := dbEngine.Close()
+		assert.NoError(err)
+	})
 }

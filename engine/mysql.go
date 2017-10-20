@@ -46,3 +46,7 @@ func (mysql *MySQL) Truncate(table string) error {
 
 	return tx.Commit()
 }
+
+func (m *MySQL) Close() error {
+	return m.db.Close()
+}

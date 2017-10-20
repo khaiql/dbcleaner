@@ -6,79 +6,50 @@ Clean database for testing, inspired by [database_cleaner](https://github.com/Da
 
 ## Basic usage
 
-* Getting started: `go get -u github.com/khaiql/dbcleaner`
+* To get the package, execute:
 
-```
-import (
-  "os"
-  "testing"
-
-  "github.com/khaiql/dbcleaner"
-
-  // Register postgres db driver, ignore this if you have already called it
-  somewhere else
-  _ "github.com/lib/pq"
-
-  // Register postgres cleaner helper
-  _ "github.com/khaiql/dbcleaner/helper/postgres"
-
-)
-
-func TestMain(m *testing.Main) {
-  cleaner, err := dbcleaner.New("postgres", "YOUR_DB_CONNECTION_STRING")
-  if err != nil {
-    panic(err)
-  }
-  defer cleaner.Close()
-
-  code := m.Run()
-  cleaner.TruncateTablesExclude("migrations")
-
-  os.Exit(code)
-}
-
-func TestSomething(t *testing.T) {
-  // TODO: Write your db related test
-}
+```bash
+go get gopkg.in/khaiql/dbcleaner.v2
 ```
 
-**NOTE:** using `TestMain` will only clear database once after all test cases
+* To import this package, add the following line to your code:
 
-## Using with testify's suite (recommended)
+```go
+import "gopkg.in/khaiql/dbcleaner.v2"
+```
+
+* To install `TestSuite`:
+
+```bash
+go get github.com/stretchr/testify
+```
+
+## Using with testify's suite
 
 ```
 import (
 	"testing"
 
-	"github.com/khaiql/dbcleaner"
-	_ "github.com/khaiql/dbcleaner/helper/postgres"
+ "gopkg.in/khaiql/dbcleaner.v2"
 	"github.com/stretchr/testify/suite"
 )
 
 type ExampleSuite struct {
 	suite.Suite
-	DBCleaner *dbcleaner.DBCleaner
 }
 
-// Init dbcleaner instance at the beginning of every suite
 func (suite *ExampleSuite) SetupSuite() {
-	cleaner, err := dbcleaner.New("postgres", "YOUR_DB_CONNECTION_STRING")
-	if err != nil {
-		panic(err)
-	}
-
-	suite.DBCleaner = cleaner
+  // Init and set mysql cleanup engine
+  mysql := engine.NewMySQLEngine("YOUR_DB_DSN")
+  dbcleaner.SetGlobalEngine(mysql)
 }
 
-// Close and release connection at the end of suite
-func (suite *ExampleSuite) TearDownSuite() {
-	suite.DBCleaner.Close()
+func (suite *ExampleSuite) SetupTest() {
+  dbcleaner.Cleaner.Acquire("users")
 }
 
-// Truncate tables after every test case. Note: sub-test using t.Run wouldn't be
-// taken into account
 func (suite *ExampleSuite) TearDownTest() {
-	suite.DBCleaner.TruncateTablesExclude("migrations")
+  dbcleaner.Cleaner.Clean("users")
 }
 
 func (suite *ExampleSuite) TestSomething() {

@@ -31,3 +31,7 @@ func (p *Postgres) Truncate(table string) error {
 	_, err := p.db.Exec(cmd)
 	return err
 }
+
+func (p *Postgres) Close() error {
+	return p.db.Close()
+}
