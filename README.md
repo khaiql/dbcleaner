@@ -73,17 +73,7 @@ Basically all drivers supported by `database/sql` package are also supported by
 `dbcleaner`. Check list of drivers:
 [https://github.com/golang/go/wiki/SQLDrivers](https://github.com/golang/go/wiki/SQLDrivers)
 
-The mechanism is literally the same as `sql.RegisterDriver`. All you need is to
-implement `helper.Helper` interface and call `dbcleaner.RegisterHelper`
-
-Want example? Check [this](https://github.com/khaiql/dbcleaner/tree/master/helper/pq)
-
-Please feel free to create PR for integrating more db drivers
-
-## Running test
-
-1. `docker-compose up -d`
-1. `go get -u github.com/lib/pq github.com/go-sql-driver/mysql`
+For custom driver, implement your own `engine.Engine` interface and call `SetEngine` on `dbcleaner.Cleaner` instance.
 
 ## License
 
