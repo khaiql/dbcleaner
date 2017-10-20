@@ -35,9 +35,12 @@ import "gopkg.in/khaiql/dbcleaner.v1"
 import (
 	"testing"
 
- "gopkg.in/khaiql/dbcleaner.v2"
+  "gopkg.in/khaiql/dbcleaner.v2"
+  "gopkg.in/khaiql/dbcleaner.v2/engine"
 	"github.com/stretchr/testify/suite"
 )
+
+var Cleaner = dbcleaner.New()
 
 type ExampleSuite struct {
 	suite.Suite
@@ -46,15 +49,15 @@ type ExampleSuite struct {
 func (suite *ExampleSuite) SetupSuite() {
   // Init and set mysql cleanup engine
   mysql := engine.NewMySQLEngine("YOUR_DB_DSN")
-  dbcleanerCleaner.SetEngine(mysql)
+  Cleaner.SetEngine(mysql)
 }
 
 func (suite *ExampleSuite) SetupTest() {
-  dbcleaner.Cleaner.Acquire("users")
+  Cleaner.Acquire("users")
 }
 
 func (suite *ExampleSuite) TearDownTest() {
-  dbcleaner.Cleaner.Clean("users")
+  Cleaner.Clean("users")
 }
 
 func (suite *ExampleSuite) TestSomething() {
