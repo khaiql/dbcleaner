@@ -26,10 +26,7 @@ func TestClean(t *testing.T) {
 	t.Run("TestLockAndThenUnlock", func(t *testing.T) {
 		tbName := "lock_table"
 		cleaner.Acquire(tbName)
-		err := cleaner.Clean(tbName)
-		if err != nil {
-			t.Error(err.Error())
-		}
+		cleaner.Clean(tbName)
 
 		mockEngine.AssertCalled(t, "Truncate", tbName)
 	})
@@ -40,14 +37,16 @@ func TestClean(t *testing.T) {
 	})
 
 	t.Run("TestTruncateError", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("The code did not panic")
+			}
+		}()
+
 		errorTruncateMock := &engine.MockEngine{}
 		errorTruncateMock.On("Truncate", mock.AnythingOfType("string")).Return(errors.New("Truncate error"))
 
 		cleaner.SetEngine(errorTruncateMock)
-		err := cleaner.Clean("error_table")
-
-		if err.Error() != "Truncate error" {
-			t.Error("Error mismatch")
-		}
+		cleaner.Clean("error_table")
 	})
 }

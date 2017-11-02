@@ -20,7 +20,7 @@ type DbCleaner interface {
 	Acquire(tables ...string)
 
 	// Clean calls Truncate the tables
-	Clean(tables ...string) error
+	Clean(tables ...string)
 
 	// Close calls corresponding method on dbEngine to release connection to db
 	Close() error
@@ -56,7 +56,7 @@ func (c *cleanerImpl) Acquire(tables ...string) {
 	}
 }
 
-func (c *cleanerImpl) Clean(tables ...string) error {
+func (c *cleanerImpl) Clean(tables ...string) {
 	for _, table := range tables {
 		if c.locks[table] != nil {
 			c.locks[table].RUnlock()
@@ -65,11 +65,9 @@ func (c *cleanerImpl) Clean(tables ...string) error {
 		}
 
 		if err := c.dbEngine.Truncate(table); err != nil {
-			return err
+			panic(err)
 		}
 	}
-
-	return nil
 }
 
 func (c *cleanerImpl) Close() error {
