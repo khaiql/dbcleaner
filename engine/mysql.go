@@ -23,6 +23,7 @@ func NewMySQLEngine(dsn string) *MySQL {
 }
 
 func (mysql *MySQL) Truncate(table string) error {
+	fmt.Printf("Truncate table %s\n", table)
 	tx, err := mysql.db.Begin()
 	if err != nil {
 		return err
@@ -35,8 +36,6 @@ func (mysql *MySQL) Truncate(table string) error {
 	}
 
 	for _, cmd := range cmds {
-		fmt.Println("Executing: ", cmd)
-
 		if _, err := tx.Exec(cmd); err != nil {
 			return tx.Rollback()
 		}
@@ -45,6 +44,6 @@ func (mysql *MySQL) Truncate(table string) error {
 	return tx.Commit()
 }
 
-func (m *MySQL) Close() error {
+func (mysql *MySQL) Close() error {
 	return m.db.Close()
 }
