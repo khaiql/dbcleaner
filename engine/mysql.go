@@ -45,5 +45,5 @@ func (mysql *MySQL) Truncate(table string) error {
 }
 
 func (mysql *MySQL) Close() error {
-	return m.db.Close()
+	return mysql.db.Close()
 }
