@@ -3,17 +3,24 @@ package dbcleaner
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/khaiql/dbcleaner/engine"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestClean(t *testing.T) {
-	cleaner := New()
+func setupMock() *engine.MockEngine {
 	mockEngine := &engine.MockEngine{}
 	mockEngine.On("Truncate", mock.AnythingOfType("string")).Return(nil)
 	mockEngine.On("Close").Return(nil)
 
+	return mockEngine
+}
+
+func TestClean(t *testing.T) {
+	cleaner := New()
+
+	mockEngine := setupMock()
 	cleaner.SetEngine(mockEngine)
 
 	t.Run("TestNothingLock", func(t *testing.T) {
@@ -48,5 +55,21 @@ func TestClean(t *testing.T) {
 
 		cleaner.SetEngine(errorTruncateMock)
 		cleaner.Clean("error_table")
+	})
+
+	t.Run("TestCleanWithoutLock", func(t *testing.T) {
+		e := setupMock()
+		cleaner.SetEngine(e)
+		cleaner.Acquire("table_1")
+		cleaner.Acquire("table_1")
+
+		go func() {
+			cleaner.Clean("table_1")
+			e.AssertNumberOfCalls(t, "Truncate", 1)
+		}()
+
+		time.Sleep(2 * time.Second)
+		cleaner.Clean("table_1")
+		e.AssertNumberOfCalls(t, "Truncate", 2)
 	})
 }
