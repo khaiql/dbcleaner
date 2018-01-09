@@ -45,24 +45,29 @@ type cleanerImpl struct {
 	dbEngine engine.Engine
 }
 
+func (c *cleanerImpl) loadFileMutexForTable(table string) (*filemutex.FileMutex, error) {
+	value, ok := c.locks.Load(table)
+	if !ok {
+		fmutex, err := filemutex.New("/tmp/" + table + ".lock")
+		if err == nil {
+			c.locks.Store(table, fmutex)
+		}
+
+		return fmutex, err
+	}
+
+	return value.(*filemutex.FileMutex), nil
+}
+
 func (c *cleanerImpl) SetEngine(dbEngine engine.Engine) {
 	c.dbEngine = dbEngine
 }
 
 func (c *cleanerImpl) Acquire(tables ...string) {
 	for _, table := range tables {
-		var locker *filemutex.FileMutex
-		var err error
-
-		if l, ok := c.locks.Load(table); !ok {
-			locker, err = filemutex.New("/tmp/" + table + ".lock")
-			if err != nil {
-				panic(err)
-			}
-
-			c.locks.Store(table, locker)
-		} else {
-			locker = l.(*filemutex.FileMutex)
+		locker, err := c.loadFileMutexForTable(table)
+		if err != nil {
+			panic(err)
 		}
 
 		locker.Lock()
@@ -71,18 +76,9 @@ func (c *cleanerImpl) Acquire(tables ...string) {
 
 func (c *cleanerImpl) Clean(tables ...string) {
 	for _, table := range tables {
-		var locker *filemutex.FileMutex
-		var err error
-
-		if l, ok := c.locks.Load(table); !ok {
-			locker, err = filemutex.New("/tmp/" + table + ".lock")
-			if err != nil {
-				panic(err)
-			}
-
-			c.locks.Store(table, locker)
-		} else {
-			locker = l.(*filemutex.FileMutex)
+		locker, err := c.loadFileMutexForTable(table)
+		if err != nil {
+			panic(err)
 		}
 
 		doneChan := make(chan bool)
@@ -91,7 +87,7 @@ func (c *cleanerImpl) Clean(tables ...string) {
 			select {
 			case <-doneChan:
 				return
-			case <-time.After(10 * time.Second):
+			case <-time.After(10 * time.Second): // Timeout if couldn't acquire the lock after some time
 				panic(fmt.Sprintf("couldn't acquire the lock for table %s because of timeout", table))
 			}
 		}()
@@ -106,10 +102,12 @@ func (c *cleanerImpl) Clean(tables ...string) {
 }
 
 func (c *cleanerImpl) Close() error {
+	// Close all file descriptor
 	c.locks.Range(func(_, value interface{}) bool {
 		locker := value.(*filemutex.FileMutex)
 		locker.Close()
 		return true
 	})
+
 	return c.dbEngine.Close()
 }
