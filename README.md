@@ -1,6 +1,6 @@
 # DbCleaner
 
-[![Build Status](https://travis-ci.org/khaiql/dbcleaner.svg?branch=master)](https://travis-ci.org/khaiql/dbcleaner) [![GoDoc](https://godoc.org/github.com/khaiql/dbcleaner?status.svg)](https://godoc.org/gopkg.in/khaiql/dbcleaner.v2) [![Go Report Card](https://goreportcard.com/badge/github.com/khaiql/dbcleaner)](https://goreportcard.com/report/github.com/khaiql/dbcleaner)[![Coverage Status](https://coveralls.io/repos/github/khaiql/dbcleaner/badge.svg)](https://coveralls.io/github/khaiql/dbcleaner)
+[![Build Status](https://travis-ci.org/khaiql/dbcleaner.svg?branch=master)](https://travis-ci.org/khaiql/dbcleaner) [![GoDoc](https://godoc.org/github.com/khaiql/dbcleaner?status.svg)](https://godoc.org/gopkg.in/khaiql/dbcleaner.v2) [![Go Report Card](https://goreportcard.com/badge/github.com/khaiql/dbcleaner)](https://goreportcard.com/report/github.com/khaiql/dbcleaner)
 
 Clean database for testing, inspired by [database_cleaner](https://github.com/DatabaseCleaner/database_cleaner) for Ruby. It uses flock syscall under the hood to make sure the test can runs in parallel without racing issues.
 
@@ -32,7 +32,7 @@ import "gopkg.in/khaiql/dbcleaner.v1"
 ## Options
 
 During running test suites, there might be deadlock when 2 suites try to acquire the same table. Dbcleaner tries to
-mitigate the issue by providing options for retry and panic the deadlock couldn't be solved after excessive retries.
+mitigate the issue by providing options for retry and panic when the deadlock couldn't be resolved after excessive retries.
 
 ```go
 type Options struct {
