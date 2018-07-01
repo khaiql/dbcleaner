@@ -23,7 +23,6 @@ func NewMySQLEngine(dsn string) *MySQL {
 }
 
 func (mysql *MySQL) Truncate(table string) error {
-	fmt.Printf("Truncate table %s\n", table)
 	tx, err := mysql.db.Begin()
 	if err != nil {
 		return err

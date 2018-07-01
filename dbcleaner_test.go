@@ -18,7 +18,7 @@ func setupMock() *engine.MockEngine {
 }
 
 func TestClean(t *testing.T) {
-	cleaner := New()
+	cleaner := New(SetNumberOfRetry(2), SetLockTimeout(1*time.Second), SetRetryInterval(1*time.Second))
 
 	mockEngine := setupMock()
 	cleaner.SetEngine(mockEngine)
@@ -71,5 +71,19 @@ func TestClean(t *testing.T) {
 		time.Sleep(2 * time.Second)
 		cleaner.Clean("table_1")
 		e.AssertNumberOfCalls(t, "Truncate", 2)
+	})
+
+	t.Run("TestAcquire", func(t *testing.T) {
+		t.Run("FailedToAcquireBecauseOfDeadLock", func(t *testing.T) {
+			cleaner.Acquire("table_1")
+
+			defer func() {
+				if r := recover(); r == nil {
+					t.Error("It should panic because of not able to acquire the lock")
+				}
+			}()
+			other := New(SetNumberOfRetry(2), SetLockTimeout(1*time.Second), SetRetryInterval(1*time.Second))
+			other.Acquire("table_1")
+		})
 	})
 }

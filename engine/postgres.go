@@ -24,7 +24,6 @@ func NewPostgresEngine(dsn string) Engine {
 
 func (p *Postgres) Truncate(table string) error {
 	cmd := fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table)
-	fmt.Printf("[Postgres] Executing command %s\n", cmd)
 
 	_, err := p.db.Exec(cmd)
 	return err
