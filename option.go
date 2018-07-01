@@ -20,24 +20,28 @@ type Options struct {
 
 type Option func(opt *Options)
 
+// SetLogger to an instance of logging.Logger, default to Noop
 func SetLogger(logger logging.Logger) Option {
 	return func(opt *Options) {
 		opt.Logger = logger
 	}
 }
 
+// SetLockTimeout sets timeout for locking operation, default to 10 seconds
 func SetLockTimeout(d time.Duration) Option {
 	return func(opt *Options) {
 		opt.LockTimeout = d
 	}
 }
 
+// SetNumberOfRetry sets max retries for acquire the table, default to 5 times
 func SetNumberOfRetry(t int) Option {
 	return func(opt *Options) {
 		opt.NumberOfRetry = t
 	}
 }
 
+// SetRetryInterval sets sleep duration between each retry, default to 10 seconds
 func SetRetryInterval(d time.Duration) Option {
 	return func(opt *Options) {
 		opt.RetryInterval = d

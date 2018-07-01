@@ -29,6 +29,52 @@ go get github.com/stretchr/testify
 import "gopkg.in/khaiql/dbcleaner.v1"
 ```
 
+## Options
+
+During running test suites, there might be deadlock when 2 suites try to acquire the same table. Dbcleaner tries to
+mitigate the issue by providing options for retry and panic the deadlock couldn't be solved after excessive retries.
+
+```go
+type Options struct {
+	Logger        logging.Logger
+	LockTimeout   time.Duration
+	NumberOfRetry int
+	RetryInterval time.Duration
+}
+
+type Option func(opt *Options)
+
+// SetLogger to an instance of logging.Logger, default to Noop
+func SetLogger(logger logging.Logger) Option {
+	return func(opt *Options) {
+		opt.Logger = logger
+	}
+}
+
+// SetLockTimeout sets timeout for locking operation, default to 10 seconds
+func SetLockTimeout(d time.Duration) Option {
+	return func(opt *Options) {
+		opt.LockTimeout = d
+	}
+}
+
+// SetNumberOfRetry sets max retries for acquire the table, default to 5 times
+func SetNumberOfRetry(t int) Option {
+	return func(opt *Options) {
+		opt.NumberOfRetry = t
+	}
+}
+
+// SetRetryInterval sets sleep duration between each retry, default to 10 seconds
+func SetRetryInterval(d time.Duration) Option {
+	return func(opt *Options) {
+		opt.RetryInterval = d
+	}
+}
+
+cleaner := dbcleaner.New(SetNumberOfRetry(10), SetLockTimeout(5*time.Second))
+```
+
 ## Using with testify's suite
 
 ```
