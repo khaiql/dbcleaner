@@ -16,6 +16,7 @@ type Options struct {
 	LockTimeout   time.Duration
 	NumberOfRetry int
 	RetryInterval time.Duration
+	LockFileDir   string
 }
 
 type Option func(opt *Options)
@@ -45,5 +46,12 @@ func SetNumberOfRetry(t int) Option {
 func SetRetryInterval(d time.Duration) Option {
 	return func(opt *Options) {
 		opt.RetryInterval = d
+	}
+}
+
+// SetLockFileDir sets directory for lock files
+func SetLockFileDir(dir string) Option {
+	return func(opt *Options) {
+		opt.LockFileDir = dir
 	}
 }

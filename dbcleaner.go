@@ -43,6 +43,7 @@ func New(opts ...Option) DbCleaner {
 		LockTimeout:   10 * time.Second,
 		NumberOfRetry: 5,
 		RetryInterval: 10 * time.Second,
+		LockFileDir:   "/tmp/",
 	}
 
 	for _, opt := range opts {
@@ -63,7 +64,7 @@ type cleanerImpl struct {
 }
 
 func (c *cleanerImpl) loadFileMutexForTable(table string) (*filemutex.FileMutex, error) {
-	fmutex, err := filemutex.New("/tmp/" + table + ".lock")
+	fmutex, err := filemutex.New(c.options.LockFileDir + table + ".lock")
 	if err != nil {
 		return nil, err
 	}
