@@ -72,6 +72,13 @@ func SetRetryInterval(d time.Duration) Option {
 	}
 }
 
+// SetLockFileDir sets directory for lock files
+func SetLockFileDir(dir string) Option {
+	return func(opt *Options) {
+		opt.LockFileDir = dir
+	}
+}
+
 cleaner := dbcleaner.New(SetNumberOfRetry(10), SetLockTimeout(5*time.Second))
 ```
 
