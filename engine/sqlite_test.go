@@ -9,7 +9,7 @@ import (
 
 func TestSQLiteTruncate(t *testing.T) {
 	assert := assert.New(t)
-	dbFilePath := "../dbcleaner_test.db.db"
+	dbFilePath := "../dbcleaner_test.db"
 	dbEngine := NewSqliteEngine(dbFilePath)
 
 	t.Run("Truncate users table", func(t *testing.T) {
