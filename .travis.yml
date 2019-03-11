@@ -3,6 +3,7 @@ language: go
 services:
   - postgresql
   - mysql
+  - sqlite
 go:
   - tip
 before_install:
@@ -11,5 +12,6 @@ before_install:
   - mysql -u root --default-character-set=utf8 dbcleaner_test < fixtures/mysql_schema.sql
   - psql -U postgres -c "CREATE DATABASE dbcleaner_test"
   - psql -U postgres -d dbcleaner_test -f fixtures/postgres_schema.sql
+  - cat fixtures/sqlite_schema.sql | sqlite3 dbcleaner_test.db
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
