@@ -127,6 +127,7 @@ func TestRunSuite(t *testing.T) {
 
 * postgres
 * mysql
+* sqlite3
 
 ## Write cleaner for other drivers
 
