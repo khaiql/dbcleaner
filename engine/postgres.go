@@ -23,7 +23,7 @@ func NewPostgresEngine(dsn string) Engine {
 }
 
 func (p *Postgres) Truncate(table string) error {
-	cmd := fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table)
+	cmd := fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", table)
 
 	_, err := p.db.Exec(cmd)
 	return err
