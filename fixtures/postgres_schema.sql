@@ -10,3 +10,5 @@ CREATE TABLE addresses (
   primary key (id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+INSERT INTO users (name) VALUES ("example");

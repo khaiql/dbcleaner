@@ -32,7 +32,7 @@ func (sqlite *SQLite) Truncate(table string) error {
 		return err
 	}
 
-	resetSequenceCMD := fmt.Sprintf("DELETE FROM SQLITE_SEQUENCE WHERE name=%s", table)
+	resetSequenceCMD := fmt.Sprintf(`DELETE FROM sqlite_sequence WHERE EXISTS(SELECT name FROM sqlite_sequence WHERE name = "%s");`, table)
 	_, errCmd := sqlite.db.Exec(resetSequenceCMD)
 
 	return errCmd

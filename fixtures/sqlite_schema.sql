@@ -8,3 +8,5 @@ CREATE TABLE addresses (
   user_id INTEGER null,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+INSERT INTO users (name) VALUES ("example");

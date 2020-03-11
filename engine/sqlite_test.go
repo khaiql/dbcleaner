@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"database/sql"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -11,9 +12,14 @@ func TestSQLiteTruncate(t *testing.T) {
 	assert := assert.New(t)
 	dbFilePath := "../dbcleaner_test.db"
 	dbEngine := NewSqliteEngine(dbFilePath)
+	db, _ := sql.Open("sqlite3", "../dbcleaner_test.db")
 
 	t.Run("Truncate users table", func(t *testing.T) {
 		err := dbEngine.Truncate("users")
+		result, _ := db.Exec("select id from users")
+		actual, _ := result.LastInsertId()
+
+		assert.Equal(int64(0), actual)
 		assert.NoError(err)
 	})
 
