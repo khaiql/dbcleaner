@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"database/sql"
 	"testing"
 
 	_ "github.com/lib/pq"
@@ -14,6 +15,11 @@ func TestPostgresTruncate(t *testing.T) {
 
 	t.Run("Truncate users table", func(t *testing.T) {
 		err := dbEngine.Truncate("users")
+		db, _ := sql.Open("postgres", dsn)
+		result, _ := db.Exec("select id from users")
+		actual, _ := result.LastInsertId()
+
+		assert.Equal(int64(0), actual)
 		assert.NoError(err)
 	})
 
